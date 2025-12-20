@@ -37,6 +37,11 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Log "Git already installed."
 }
 
+$GitPath = "C:\Program Files\Git\cmd"
+if (-not ($env:Path -like "*$GitPath*")) {
+    $env:Path += ";$GitPath"
+}
+
 # ---------------- Install Flutter SDK ----------------
 if (-not (Test-Path "$FlutterHome\bin\flutter.bat")) {
     Log "Installing Flutter SDK..."
