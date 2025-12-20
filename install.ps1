@@ -99,7 +99,7 @@ Require-Command sdkmanager
 # ---------------- Install latest Android SDK ----------------
 Log "Installing Android SDK..."
 # Get latest Android platform
-$platforms = & sdkmanager --list | Select-String -Pattern 'platforms;android-(\d+)' | ForEach-Object {
+$LatestPlatform = & sdkmanager --list | Select-String -Pattern 'platforms;android-(\d+)' | ForEach-Object {
     [PSCustomObject]@{
         Text = $_.Matches[0].Value
         Version = [int]($_.Matches[0].Groups[1].Value)
@@ -107,15 +107,16 @@ $platforms = & sdkmanager --list | Select-String -Pattern 'platforms;android-(\d
 } | Sort-Object Version -Descending | Select-Object -First 1
 
 # Get latest Build Tools
-$buildTools = & sdkmanager --list | Select-String -Pattern 'build-tools;([0-9.]+)' | ForEach-Object {
+$LatestBuildTools = & sdkmanager --list | Select-String -Pattern 'build-tools;([0-9.]+)' | ForEach-Object {
     [PSCustomObject]@{
         Text = $_.Matches[0].Value
         VersionParts = $_.Matches[0].Groups[1].Value -split '\.' | ForEach-Object {[int]$_}
     }
 } | Sort-Object -Property @{Expression={$_.VersionParts[0]};Descending=$true}, @{Expression={$_.VersionParts[1]};Descending=$true}, @{Expression={$_.VersionParts[2]};Descending=$true} | Select-Object -First 1
 
-Log "Installing platform-tools, $($platform.Text), $($buildTools.Text)..."
-& sdkmanager "platform-tools" $platform.Text $buildTools.Text
+# Install latest packages
+Log "Installing platform-tools, $($LatestPlatform.Text), $($LatestBuildTools.Text)..."
+& sdkmanager "platform-tools" $LatestPlatform.Text $LatestBuildTools.Text
 
 
 # ---------------- Accept licenses ----------------
