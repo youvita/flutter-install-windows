@@ -43,6 +43,11 @@ if (-not ($env:Path -like "*$GitPath*")) {
     $env:Path += ";$GitPath"
 }
 
+if (-not (Get-Command cl -ErrorAction SilentlyContinue)) {
+    Log "Installing Visual Studio Build Tools..."
+    choco install visualstudio2019buildtools -y
+}
+
 # ---------------- Set JAVA_HOME from Android Studio JDK ----------------
 $AndroidStudioPath = "C:\Program Files\Android\Android Studio"
 $JavaHome = Join-Path $AndroidStudioPath "jbr"
