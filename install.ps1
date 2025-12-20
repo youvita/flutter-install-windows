@@ -43,24 +43,24 @@ if (-not ($env:Path -like "*$GitPath*")) {
     $env:Path += ";$GitPath"
 }
 
-# ---------------- Install Java if missing ----------------
-Log "Installing jdk..."
-choco install openjdk -y
+# ---------------- Set JAVA_HOME from Android Studio JDK ----------------
+$AndroidStudioPath = "C:\Program Files\Android\Android Studio"
+$JavaHome = Join-Path $AndroidStudioPath "jbr"
 
-# Use Android Studio JDK if installed
-if (Test-Path "$AndroidStudioPath\jbr") {
-    $JavaHome = Join-Path $AndroidStudioPath "jbr"
-} else {
-    $JavaHome = (choco list --local-only | Select-String "openjdk") -replace ".*?C:\\","C:\"  # fallback
+if (-not (Test-Path $JavaHome)) {
+    Err "Android Studio JDK not found. Please install Android Studio first."
 }
-if (-not (Test-Path $JavaHome)) { Err "Java installation not found." }
 
-# ---------------- Set JAVA_HOME ----------------
+# Set JAVA_HOME and update PATH for current session
 $env:JAVA_HOME = $JavaHome
 $env:Path = "$JavaHome\bin;$env:Path"
+
+# Optionally set system-wide environment variables
 [Environment]::SetEnvironmentVariable("JAVA_HOME", $JavaHome, "Machine")
 [Environment]::SetEnvironmentVariable("Path", "$env:Path", "Machine")
-Log "JAVA_HOME set to $JavaHome"
+
+Write-Host "[INFO] JAVA_HOME set to $JavaHome"
+
 
 
 # ---------------- Install Flutter SDK ----------------
