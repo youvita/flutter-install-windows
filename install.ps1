@@ -61,8 +61,6 @@ $env:Path = "$JavaHome\bin;$env:Path"
 
 Write-Host "[INFO] JAVA_HOME set to $JavaHome"
 
-
-
 # ---------------- Install Flutter SDK ----------------
 if (-not (Test-Path "$FlutterHome\bin\flutter.bat")) {
     Log "Installing Flutter SDK..."
@@ -110,7 +108,7 @@ Log "Installing platform-tools, $platforms, $buildTools..."
 
 # ---------------- Accept licenses ----------------
 Log "Accepting all Android licenses..."
-cmd /c "yes | sdkmanager --licenses"
+flutter doctor --android-licenses
 
 # ---------------- Flutter config ----------------
 flutter config --android-sdk $AndroidSdkRoot
