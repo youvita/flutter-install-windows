@@ -60,11 +60,11 @@ if (-not (Test-Path "C:\Program Files\Android\Android Studio\bin\studio64.exe"))
 if (-not (Test-Path $CmdlineTools)) {
     Log "Downloading Android command-line tools..."
     $TmpZip = "$env:TEMP\cmdline-tools.zip"
-    Invoke-WebRequest -Uri 
-"https://dl.google.com/android/repository/commandlinetools-win-9477386_latest.zip" -OutFile $TmpZip
+    Invoke-WebRequest -Uri "https://dl.google.com/android/repository/commandlinetools-win-9477386_latest.zip" -OutFile $TmpZip
     Expand-Archive $TmpZip -DestinationPath (Join-Path $AndroidSdkRoot "cmdline-tools")
     Rename-Item (Join-Path $AndroidSdkRoot "cmdline-tools\cmdline-tools") "latest"
 }
+
 
 # Add SDK tools to PATH (current session)
 $env:Path = "$CmdlineTools\bin;$AndroidSdkRoot\platform-tools;$env:Path"
