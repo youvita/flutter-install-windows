@@ -47,6 +47,22 @@ if (-not ($env:Path -like "*$GitPath*")) {
 Log "Installing jdk..."
 choco install openjdk -y
 
+# Use Android Studio JDK if installed
+if (Test-Path "$AndroidStudioPath\jbr") {
+    $JavaHome = Join-Path $AndroidStudioPath "jbr"
+} else {
+    $JavaHome = (choco list --local-only | Select-String "openjdk") -replace ".*?C:\\","C:\"  # fallback
+}
+if (-not (Test-Path $JavaHome)) { Err "Java installation not found." }
+
+# ---------------- Set JAVA_HOME ----------------
+$env:JAVA_HOME = $JavaHome
+$env:Path = "$JavaHome\bin;$env:Path"
+[Environment]::SetEnvironmentVariable("JAVA_HOME", $JavaHome, "Machine")
+[Environment]::SetEnvironmentVariable("Path", "$env:Path", "Machine")
+Log "JAVA_HOME set to $JavaHome"
+
+
 # ---------------- Install Flutter SDK ----------------
 if (-not (Test-Path "$FlutterHome\bin\flutter.bat")) {
     Log "Installing Flutter SDK..."
