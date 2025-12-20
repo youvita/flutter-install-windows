@@ -97,18 +97,30 @@ $env:Path = "$CmdlineTools\bin;$AndroidSdkRoot\platform-tools;$env:Path"
 Require-Command sdkmanager
 
 # ---------------- Install latest Android SDK ----------------
-Log "Resolving latest Android SDK packages..."
-$platforms = & sdkmanager --list | Select-String -Pattern 'platforms;android-[0-9]+' | ForEach-Object { 
-$_.Matches[0].Value } | Sort-Object | Select-Object -Last 1
-$buildTools = & sdkmanager --list | Select-String -Pattern 'build-tools;[0-9.]+' | ForEach-Object { 
-$_.Matches[0].Value } | Sort-Object | Select-Object -Last 1
+Log "Installing Android SDK..."
+# Get latest Android platform
+$platforms = & sdkmanager --list | Select-String -Pattern 'platforms;android-(\d+)' | ForEach-Object {
+    [PSCustomObject]@{
+        Text = $_.Matches[0].Value
+        Version = [int]($_.Matches[0].Groups[1].Value)
+    }
+} | Sort-Object Version -Descending | Select-Object -First 1
 
-Log "Installing platform-tools, $platforms, $buildTools..."
-& sdkmanager "platform-tools" $platforms $buildTools
+# Get latest Build Tools
+$buildTools = & sdkmanager --list | Select-String -Pattern 'build-tools;([0-9.]+)' | ForEach-Object {
+    [PSCustomObject]@{
+        Text = $_.Matches[0].Value
+        VersionParts = $_.Matches[0].Groups[1].Value -split '\.' | ForEach-Object {[int]$_}
+    }
+} | Sort-Object -Property @{Expression={$_.VersionParts[0]};Descending=$true}, @{Expression={$_.VersionParts[1]};Descending=$true}, @{Expression={$_.VersionParts[2]};Descending=$true} | Select-Object -First 1
+
+Log "Installing platform-tools, $($platform.Text), $($buildTools.Text)..."
+& sdkmanager "platform-tools" $platform.Text $buildTools.Text
+
 
 # ---------------- Accept licenses ----------------
 Log "Accepting all Android licenses..."
-flutter doctor --android-licenses
+1..20 | ForEach-Object { echo y } | flutter doctor --android-licenses
 
 # ---------------- Flutter config ----------------
 flutter config --android-sdk $AndroidSdkRoot
