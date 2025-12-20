@@ -37,10 +37,15 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Log "Git already installed."
 }
 
+# ---------------- Refresh PowerShell to use Git ----------------
 $GitPath = "C:\Program Files\Git\cmd"
 if (-not ($env:Path -like "*$GitPath*")) {
     $env:Path += ";$GitPath"
 }
+
+# ---------------- Install Java if missing ----------------
+Log "Installing jdk..."
+choco install openjdk -y
 
 # ---------------- Install Flutter SDK ----------------
 if (-not (Test-Path "$FlutterHome\bin\flutter.bat")) {
@@ -69,6 +74,7 @@ if (-not (Test-Path $CmdlineTools)) {
     Expand-Archive $TmpZip -DestinationPath (Join-Path $AndroidSdkRoot "cmdline-tools")
     Rename-Item (Join-Path $AndroidSdkRoot "cmdline-tools\cmdline-tools") "latest"
 }
+
 
 
 # Add SDK tools to PATH (current session)
